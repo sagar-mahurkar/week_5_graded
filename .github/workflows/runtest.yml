@@ -21,9 +21,7 @@ permissions:
 jobs:
   test_model:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        data_version: [v1.0, v2.0]   # Git tags or branches to test
+
     steps:
       # --- Checkout the repo with authentication ---
       - uses: actions/checkout@v3
@@ -43,17 +41,6 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
-
-      # --- Checkout the correct Git tag or branch ---
-      - name: Checkout code version
-        run: |
-          echo "Checking out code version: ${{ matrix.data_version }}"
-          git fetch --tags
-          if git rev-parse ${{ matrix.data_version }} >/dev/null 2>&1; then
-            git checkout ${{ matrix.data_version }}
-          else
-            echo "Tag or branch ${{ matrix.data_version }} not found. Staying on current commit."
-          fi
 
       # --- Configure DVC remote and pull data ---
       - name: Setup DVC Remote and Pull Data
@@ -83,6 +70,7 @@ jobs:
           echo "Training model..."
           python train.py > main_output.txt 2>&1 || true
           python fetch_from_mlflow.py >> main_output.txt 2>&1 || true
+
       # --- Run tests ---
       - name: Run unit tests
         run: |
@@ -97,20 +85,13 @@ jobs:
           REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo "Creating CML report..."
-          echo "## Accuracy Output for ${{ matrix.data_version }}" > report.md
+          echo "## Accuracy Output" > report.md
           echo "\`\`\`" >> report.md
           cat main_output.txt >> report.md
           echo "\`\`\`" >> report.md
-          echo "## Test Report for ${{ matrix.data_version }}" >> report.md
+          echo "## Test Report" >> report.md
           echo "\`\`\`" >> report.md
           cat test_output.txt >> report.md
           echo "\`\`\`" >> report.md
 
           cml comment create --publish report.md
-
-
-
-
-
-
-
