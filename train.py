@@ -22,7 +22,6 @@ def prepare_data():
     # load the data
     data = pd.read_csv('./data.csv')
     data = pd.DataFrame(data, columns=['sepal_length','sepal_width','petal_length','petal_width', 'species'])
-    data['species'] = pd.Series(iris.target).map({0: 'setosa', 1: 'versicolor', 2: 'virginica'})
 
     # Split the data
     train, test = train_test_split(
