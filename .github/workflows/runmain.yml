@@ -42,22 +42,6 @@ jobs:
         run: |
           pip install -r requirements.txt
 
-      # --- Configure DVC Remote and Pull Data ---
-      - name: Setup DVC Remote and Pull Data
-        env:
-          GCP_BUCKET: "gs://mlops-course-lively-nimbus-473407-m9"
-          GOOGLE_APPLICATION_CREDENTIALS: "${{ github.workspace }}/gcp-key.json"
-          GCP_CREDENTIALS_JSON: ${{ secrets.GCP_CREDENTIALS_JSON }}
-        run: |
-          echo "Setting up DVC remote..."
-          echo "$GCP_CREDENTIALS_JSON" > $GOOGLE_APPLICATION_CREDENTIALS
-          dvc remote add -f -d gcs_remote $GCP_BUCKET
-          dvc remote modify gcs_remote credentialpath $GOOGLE_APPLICATION_CREDENTIALS
-          echo "Pulling data from remote..."
-          dvc pull
-          echo "Files after pull:"
-          ls -lh
-
       # --- Optional debug listing ---
       - name: Debug workspace contents
         run: |
