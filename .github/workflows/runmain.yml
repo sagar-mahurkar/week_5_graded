@@ -36,12 +36,18 @@ jobs:
 
       # --- Set up CML (for commenting reports) ---
       - uses: iterative/setup-cml@v2
-
+      
       # --- Install dependencies ---
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
-
+          
+      # --- Pull data from DVC remote ---
+      - name: Pull data using DVC
+        run: |
+          dvc pull
+          ls -lh
+          
       # --- Optional debug listing ---
       - name: Debug workspace contents
         run: |
@@ -67,3 +73,4 @@ jobs:
           echo "\`\`\`" >> report.md
 
           cml comment create --publish report.md
+
