@@ -82,7 +82,7 @@ jobs:
         run: |
           echo "Training model..."
           python train.py > main_output.txt 2>&1 || true
-
+          python fetch_from_mlflow.py >> main_output.txt 2>&1 || true
       # --- Run tests ---
       - name: Run unit tests
         run: |
@@ -107,6 +107,7 @@ jobs:
           echo "\`\`\`" >> report.md
 
           cml comment create --publish report.md
+
 
 
 
