@@ -21,9 +21,6 @@ permissions:
 jobs:
   test_model:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        data_version: [v1.0, v2.0]   # Git tags or branches to test
 
     steps:
       # --- Checkout the repository ---
@@ -44,22 +41,6 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
-
-      # --- Checkout the correct Git tag or branch ---
-      - name: Checkout code version
-        run: |
-          echo "Checking out code version: ${{ matrix.data_version }}"
-          git fetch --all --tags --force
-          echo "Available tags:"
-          git tag -l
-          if git show-ref --tags | grep -q "refs/tags/${{ matrix.data_version }}"; then
-            git checkout tags/${{ matrix.data_version }} -b temp-${{ matrix.data_version }}
-          elif git rev-parse --verify ${{ matrix.data_version }} >/dev/null 2>&1; then
-            git checkout ${{ matrix.data_version }}
-          else
-            echo "Tag or branch ${{ matrix.data_version }} not found. Staying on current commit."
-          fi
-
 
       # --- Configure DVC Remote and Pull Data ---
       - name: Setup DVC Remote and Pull Data
@@ -96,11 +77,9 @@ jobs:
           REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo "Creating CML report..."
-          echo "## Accuracy Output for ${{ matrix.data_version }}" > report.md
+          echo "## Accuracy Output" > report.md
           echo "\`\`\`" >> report.md
           cat main_output.txt >> report.md
           echo "\`\`\`" >> report.md
 
           cml comment create --publish report.md
-
-
