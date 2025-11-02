@@ -41,7 +41,15 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
-          
+
+      # --- Authenticate to GCP (needed for DVC remote) ---
+      - name: Setup GCP credentials
+        env:
+          GCP_CREDENTIALS_JSON: ${{ secrets.GCP_CREDENTIALS_JSON }}
+        run: |
+          echo "$GCP_CREDENTIALS_JSON" > gcp-key.json
+          export GOOGLE_APPLICATION_CREDENTIALS=$(pwd)/gcp-key.json
+
       # --- Pull data from DVC remote ---
       - name: Pull data using DVC
         run: |
@@ -73,4 +81,5 @@ jobs:
           echo "\`\`\`" >> report.md
 
           cml comment create --publish report.md
+
 
