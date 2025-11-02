@@ -42,13 +42,19 @@ jobs:
         run: |
           pip install -r requirements.txt
 
-      # --- Authenticate to GCP (needed for DVC remote) ---
-      - name: Setup GCP credentials
+      # --- Authenticate to GCP and configure DVC remote ---
+      - name: Setup DVC Remote
         env:
+          GCP_BUCKET: "gs://mlops-course-lively-nimbus-473407-m9"
           GCP_CREDENTIALS_JSON: ${{ secrets.GCP_CREDENTIALS_JSON }}
         run: |
           echo "$GCP_CREDENTIALS_JSON" > gcp-key.json
           export GOOGLE_APPLICATION_CREDENTIALS=$(pwd)/gcp-key.json
+
+          # Configure DVC to use GCS with the service account
+          dvc remote modify gcs_remote credentialpath $GOOGLE_APPLICATION_CREDENTIALS || \
+          dvc remote add -d gcs_remote $GCP_BUCKET
+          dvc remote modify gcs_remote credentialpath $GOOGLE_APPLICATION_CREDENTIALS
 
       # --- Pull data from DVC remote ---
       - name: Pull data using DVC
@@ -81,5 +87,6 @@ jobs:
           echo "\`\`\`" >> report.md
 
           cml comment create --publish report.md
+
 
 
