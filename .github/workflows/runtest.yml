@@ -42,23 +42,7 @@ jobs:
         run: |
           pip install -r requirements.txt
 
-      # --- Configure DVC remote and pull data ---
-      - name: Setup DVC Remote and Pull Data
-        env:
-          GCP_BUCKET: "gs://mlops-course-lively-nimbus-473407-m9"
-          GOOGLE_APPLICATION_CREDENTIALS: "${{ github.workspace }}/gcp-key.json"
-          GCP_CREDENTIALS_JSON: ${{ secrets.GCP_CREDENTIALS_JSON }}
-        run: |
-          echo "Setting up DVC remote..."
-          echo "$GCP_CREDENTIALS_JSON" > $GOOGLE_APPLICATION_CREDENTIALS
-          dvc remote add -f -d gcs_remote $GCP_BUCKET
-          dvc remote modify gcs_remote credentialpath $GOOGLE_APPLICATION_CREDENTIALS
-          echo "Pulling data from remote..."
-          dvc pull
-          echo "Files after pull:"
-          ls -lh
-
-      # --- Optional: Debug listing to confirm data presence ---
+      # --- Optional: Debug listing to confirm files ---
       - name: Debug workspace contents
         run: |
           echo "Listing repository contents recursively:"
@@ -77,21 +61,4 @@ jobs:
           echo "Running unit tests..."
           echo "Current directory: $(pwd)"
           ls -R
-          python -m unittest discover -s . -p "test_*.py" -v > test_output.txt 2>&1 || true
-
-      # --- Generate and publish CML report ---
-      - name: Create CML report
-        env:
-          REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          echo "Creating CML report..."
-          echo "## Accuracy Output" > report.md
-          echo "\`\`\`" >> report.md
-          cat main_output.txt >> report.md
-          echo "\`\`\`" >> report.md
-          echo "## Test Report" >> report.md
-          echo "\`\`\`" >> report.md
-          cat test_output.txt >> report.md
-          echo "\`\`\`" >> report.md
-
-          cml comment create --publish report.md
+          python -m u
